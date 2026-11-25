@@ -9,6 +9,7 @@ spark = (SparkSession.builder
     .config("spark.hadoop.fs.s3a.path.style.access", "true")
     .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false")
     .getOrCreate())
+# Небольшой справочник: полный снимок заменяется целиком без партиций.
 query = "SELECT product_id, category, brand, product_name FROM public.products"
 df = (spark.read.format("jdbc")
     .option("query", query)

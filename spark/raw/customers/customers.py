@@ -33,6 +33,8 @@ jdbc = dict(
 
 
 
+# Справочник мал: читаем полный снимок без WHERE и partitionBy.
+# Трёхдневное окно и sink_has_data не нужны: каждый запуск целиком заменяет снимок.
 query = """
     SELECT customer_id
          , registered_at
@@ -56,4 +58,5 @@ df_customers = (
     .save(CUSTOMERS_PATH)
 )
 
-print(f"Сохранено: {CUSTOMERS_PATH}, строк: {df_customers.count()}")
+print(f"Сохранено: {CUSTOMERS_PATH}")
+spark.stop()

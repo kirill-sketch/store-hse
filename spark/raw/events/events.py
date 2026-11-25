@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 from pyspark.sql import functions as F
 from pyspark.sql import SparkSession
+from pyspark.sql.utils import AnalysisException
 
 
 PG = dict(
@@ -21,8 +22,10 @@ EVENTS_PATH = f"s3a://{BUCKET}/raw/events"
 def sink_has_data(spark: SparkSession, path: str) -> bool:
     try:
         return spark.read.parquet(path).limit(1).count() > 0
-    except Exception:
-        return False
+    except AnalysisException as exc:
+        if exc.getErrorClass() == "PATH_NOT_FOUND":
+            return False
+        raise
 
 
 spark = (
@@ -80,6 +83,7 @@ df_events = (
 )
 
 
+# event_time не бывает NULL; партиция по дате позволяет обновлять только трёхдневное окно.
 df_events = df_events.withColumn("event_dt", F.to_date("event_time"))
 
 
@@ -92,3 +96,5 @@ df_events = df_events.withColumn("event_dt", F.to_date("event_time"))
 )
 
 print(f"Сохранено: {EVENTS_PATH}")
+
+spark.stop()

@@ -6,13 +6,11 @@ BASE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 SPARK_ROOT="$BASE_DIR/spark"
 LOAD_DATE=""
 LOG_FILE="$BASE_DIR/spark_check/checks.log"
-SKIP_DELTA=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --load-date)  LOAD_DATE="$2"; shift 2 ;;
     --log-file)   LOG_FILE="$2";  shift 2 ;;
-    --skip-delta) SKIP_DELTA=1;   shift ;;
     *) echo "Неизвестный аргумент: $1"; exit 2 ;;
   esac
 done

@@ -41,3 +41,14 @@ erDiagram
 ### Граф зависимостей
 
 ![Граф зависимостей dbt](docs/lineage.png)
+## Домашнее задание 2: Spark
+
+Пайплайн в `spark/` читает таблицы PostgreSQL по JDBC и записывает Parquet в MinIO (`s3a://de-course`). Слои: `raw` → `staging` → `intermediate` → `marts`. Инкрементальные таблицы перечитывают окно `[load_date - 3 дня; load_date)`, а платежи без даты перечитываются при каждом запуске. Запись по партициям использует dynamic overwrite.
+
+Из контейнера `ubuntu-vm` запустить проверки за обе даты:
+
+```bash
+bash /home/student/study/store_hse/spark_check/runner.sh
+```
+
+Результат каждой проверки записывается в `spark_check/checks.log` с `run_id` и `load_date`; этот локальный журнал исключён из Git.

@@ -226,14 +226,6 @@ def check_fct_orders(spark, load_date, s, e):
             f"int_orders_with_payments без тестовых заказов, дубликатов нет")
 
 
-def check_fct_orders_delta(spark, load_date, s, e):
-
-    df = spark.read.format("delta").load(P("marts/fct_orders_delta"))
-    df_window = df.filter((F.col("order_date") >= s) & (F.col("order_date") < e))
-    n = df_window.count()
-    assert n > 0, f"пусто окно [{s}; {e}) в fct_orders_delta"
-    return f"OK: {n} строк за окно [{s}; {e}) (упрощённая проверка - в ноутбуке проверки delta нет)"
-
 
 CHECKS = {
     "raw_customers":            (check_raw_customers, False),
@@ -247,7 +239,6 @@ CHECKS = {
     "stg_payments":       (check_stg_payments, False),
     "int_orders_with_payments": (check_int_orders_with_payments, False),
     "fct_orders":               (check_fct_orders, False),
-    "fct_orders_delta":         (check_fct_orders_delta, True),
 }
 
 

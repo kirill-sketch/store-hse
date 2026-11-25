@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 from pyspark.sql import functions as F
 from pyspark.sql import SparkSession
+from pyspark.sql.utils import AnalysisException
 
 
 PG = dict(
@@ -21,8 +22,10 @@ ORDERS_PATH = f"s3a://{BUCKET}/raw/orders"
 def sink_has_data(spark: SparkSession, path: str) -> bool:
     try:
         return spark.read.parquet(path).limit(1).count() > 0
-    except Exception:
-        return False
+    except AnalysisException as exc:
+        if exc.getErrorClass() == "PATH_NOT_FOUND":
+            return False
+        raise
 
 
 spark = (
@@ -79,6 +82,7 @@ df_orders = (
 )
 
 
+# Дата заказа задаёт партицию; dynamic overwrite сохраняет данные вне трёхдневного окна.
 df_orders = df_orders.withColumn("order_created_dt", F.to_date("order_created_at"))
 
 
@@ -91,3 +95,5 @@ df_orders = df_orders.withColumn("order_created_dt", F.to_date("order_created_at
 )
 
 print(f"Сохранено: {ORDERS_PATH}")
+
+spark.stop()

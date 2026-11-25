@@ -42,7 +42,7 @@ df_stg_orders = (
         F.col("order_id"),
         F.col("customer_id"),
         F.col("order_created_at").cast("timestamp").alias("ordered_at"),
-        F.col("order_created_dt").cast("date").alias("order_date"),
+        F.to_date("order_created_at").alias("order_date"),
         F.col("status").alias("order_status"),
         F.col("total_amount").alias("order_amount"),
         (F.col("status") == "test").alias("is_test_order"),
@@ -59,3 +59,5 @@ df_stg_orders = (
 )
 
 print(f"Сохранено: {STG_ORDERS_PATH}")
+
+spark.stop()

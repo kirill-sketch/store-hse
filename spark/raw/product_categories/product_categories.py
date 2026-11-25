@@ -9,6 +9,7 @@ spark = (SparkSession.builder
     .config("spark.hadoop.fs.s3a.path.style.access", "true")
     .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false")
     .getOrCreate())
+# Иерархический справочник: полный снимок заменяется целиком без партиций.
 query = "SELECT category_id, parent_category_id, category_name FROM public.product_categories"
 df = (spark.read.format("jdbc")
     .option("query", query)

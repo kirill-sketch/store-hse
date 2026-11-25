@@ -1,4 +1,6 @@
-
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")"
 spark-submit \
   --master spark://spark-master:7077 \
   --name load-stg_payments \

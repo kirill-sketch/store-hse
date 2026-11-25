@@ -65,3 +65,5 @@ df_stg_payments = df_stg_payments.withColumn("paid_dt", F.to_date("paid_at"))
 )
 
 print(f"Сохранено: {STG_PAYMENTS_PATH}")
+
+spark.stop()

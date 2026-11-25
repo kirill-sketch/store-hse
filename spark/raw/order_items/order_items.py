@@ -9,6 +9,7 @@ spark = (SparkSession.builder
     .config("spark.hadoop.fs.s3a.path.style.access", "true")
     .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false")
     .getOrCreate())
+# В источнике нет колонки даты, поэтому трёхдневное окно определить нельзя; читаем полный снимок.
 query = "SELECT order_id, product_id, quantity, unit_price, discount_amount FROM public.order_items"
 df = (spark.read.format("jdbc")
     .option("query", query)

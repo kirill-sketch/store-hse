@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 from pyspark.sql import functions as F
 from pyspark.sql import SparkSession
+from pyspark.sql.utils import AnalysisException
 
 
 PG = dict(
@@ -21,8 +22,10 @@ PAYMENTS_PATH = f"s3a://{BUCKET}/raw/payments"
 def sink_has_data(spark: SparkSession, path: str) -> bool:
     try:
         return spark.read.parquet(path).limit(1).count() > 0
-    except Exception:
-        return False
+    except AnalysisException as exc:
+        if exc.getErrorClass() == "PATH_NOT_FOUND":
+            return False
+        raise
 
 
 spark = (
@@ -81,6 +84,8 @@ df_payments = (
 )
 
 
+# NULL в paid_dt записывается в __HIVE_DEFAULT_PARTITION__; pending перечитываются всегда.
+# Dynamic overwrite заменяет только окно дат и партицию pending.
 df_payments = df_payments.withColumn("paid_dt", F.to_date("paid_at"))
 
 
@@ -93,3 +98,5 @@ df_payments = df_payments.withColumn("paid_dt", F.to_date("paid_at"))
 )
 
 print(f"Сохранено: {PAYMENTS_PATH}")
+
+spark.stop()
